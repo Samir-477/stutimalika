@@ -1,0 +1,25 @@
+name: stutimallika
+description: "Stutimallika - A devotional stotra app."
+publish_to: 'none'
+version: 1.0.0+1
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+dependencies:
+  flutter:
+    sdk: flutter
+  shared_preferences: ^2.2.0
+  just_audio: ^0.9.36
+  audio_video_progress_bar: ^2.0.3
+  flutter_svg: ^2.0.9
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/data/
+    - assets/images/
+    - assets/audio/

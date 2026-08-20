@@ -109,11 +109,11 @@ class _ReaderScreenState extends State<ReaderScreen> {
         _playerStateSub = _player.playerStateStream.listen((state) {
           if (state.processingState == ProcessingState.completed) {
             if (_isLooping) {
-              _player.seek(Duration.zero);
-              _player.play();
+              audioHandler.seek(Duration.zero);
+              audioHandler.play();
             } else {
-              _player.pause();
-              _player.seek(Duration.zero);
+              audioHandler.pause();
+              audioHandler.seek(Duration.zero);
             }
           }
         });
@@ -172,7 +172,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
     var newPos = _position + Duration(seconds: seconds);
     if (newPos < Duration.zero) newPos = Duration.zero;
     if (newPos > _duration) newPos = _duration;
-    _player.seek(newPos);
+    audioHandler.seek(newPos);
   }
 
   void _shareStotra() {
@@ -555,7 +555,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
                   value: _duration.inMilliseconds > 0 ? (position.inMilliseconds / _duration.inMilliseconds).clamp(0.0, 1.0) : 0.0,
                   onChanged: (v) {
                     final pos = Duration(milliseconds: (_duration.inMilliseconds * v).round());
-                    _player.seek(pos);
+                    audioHandler.seek(pos);
                   },
                   activeColor: c.accent,
                   inactiveColor: Colors.white30,
@@ -597,7 +597,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
                   }
                   return FloatingActionButton(
                     backgroundColor: c.accent,
-                    onPressed: playing ? _player.pause : _player.play,
+                    onPressed: playing ? audioHandler.pause : audioHandler.play,
                     child: AnimatedSwitcher(
                       duration: const Duration(milliseconds: 200),
                       transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),

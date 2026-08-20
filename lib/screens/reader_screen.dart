@@ -112,11 +112,17 @@ class _ReaderScreenState extends State<ReaderScreen> {
 
   void _cycleSpeed() {
     setState(() {
-      if (_speed == 1.0) _speed = 1.25;
-      else if (_speed == 1.25) _speed = 1.5;
-      else if (_speed == 1.5) _speed = 2.0;
-      else if (_speed == 2.0) _speed = 0.75;
-      else _speed = 1.0;
+      if (_speed == 1.0) {
+        _speed = 1.25;
+      } else if (_speed == 1.25) {
+        _speed = 1.5;
+      } else if (_speed == 1.5) {
+        _speed = 2.0;
+      } else if (_speed == 2.0) {
+        _speed = 0.75;
+      } else {
+        _speed = 1.0;
+      }
     });
     _player.setSpeed(_speed);
   }

@@ -85,7 +85,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 return Switch(
                   value: isDark,
                   onChanged: (v) => AppState.darkMode.value = v,
-                  activeColor: c.accent,
+                  activeThumbColor: c.accent,
                 );
               },
             ),

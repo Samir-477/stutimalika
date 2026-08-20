@@ -147,7 +147,7 @@ class _HomeScreenState extends State<HomeScreen> {
             gradient: LinearGradient(
               begin: Alignment.bottomCenter,
               end: Alignment.center,
-              colors: [Colors.black.withOpacity(0.8), Colors.transparent],
+              colors: [Colors.black.withValues(alpha: 0.8), Colors.transparent],
             ),
           ),
           padding: const EdgeInsets.all(12),

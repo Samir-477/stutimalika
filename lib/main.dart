@@ -1,11 +1,27 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'screens/splash_screen.dart';
 import 'models/models.dart';
+import 'services/audio_handler.dart';
 import 'theme/app_colors.dart';
+
+// App-scoped so playback and the OS media notification survive navigating
+// away from the Reader screen. Provided via dependency injection rather than
+// a plain global would be cleaner, but this app has no DI setup yet.
+late final StutiAudioHandler audioHandler;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await AppState.loadPrefs();
+  audioHandler = await AudioService.init(
+    builder: () => StutiAudioHandler(),
+    config: const AudioServiceConfig(
+      androidNotificationChannelId: 'com.stutimallika.audio',
+      androidNotificationChannelName: 'Stutimallika Playback',
+      androidNotificationOngoing: true,
+      androidStopForegroundOnPause: true,
+    ),
+  );
   runApp(const StutiMallikaApp());
 }
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/models.dart';
 import '../theme/app_colors.dart';
 import '../widgets/icon_badge.dart';
+import '../widgets/numbered_title.dart';
 import '../utils/page_transitions.dart';
 import 'stotra_list_screen.dart';
 import 'reader_screen.dart';
@@ -36,8 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(padding: const EdgeInsets.fromLTRB(16, 16, 16, 4), child: Text('Script (applies app-wide)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: c.brandText))),
-              scriptTile('Sanskrit', 'sa'),
-              scriptTile('Kannada', 'kn'),
+              ...scriptLangLabels.entries.map((e) => scriptTile(e.value, e.key)),
             ],
           ),
         );
@@ -50,6 +50,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final c = context.colors;
     return Scaffold(
       appBar: AppBar(
+        toolbarHeight: 72,
+        centerTitle: false,
         title: Text(
           scriptText('स्तुतिमल्लिका', 'ಸ್ತುತಿಮಲ್ಲಿಕಾ'),
           style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
@@ -228,7 +230,7 @@ class StotraSubcategoriesScreen extends StatelessWidget {
             child: ListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               leading: Icon(Icons.menu_book_rounded, color: c.brandText, size: 28),
-              title: Text('${index + 1}. ${composers[index]}', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: c.brandText, height: 1.3)),
+              title: NumberedTitle(number: index + 1, text: composers[index], style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: c.brandText, height: 1.3)),
               trailing: hasContent ? const Icon(Icons.chevron_right) : const Text('Coming soon', style: TextStyle(color: Colors.grey)),
               onTap: hasContent ? () {
                 Navigator.push(context, smoothRoute(StotraListScreen(composer: 'Sri Vadiraja Tirtha', title: scriptText('श्रीवादिराजतीर्थकृतस्तोत्राणि', 'ಶ್ರೀವಾದಿರಾಜತೀರ್ಥಕೃತಸ್ತೋತ್ರಾಣಿ'))));
@@ -295,7 +297,7 @@ class _SuladiListScreenState extends State<SuladiListScreen> {
                   child: ListTile(
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     leading: bookIcon,
-                    title: Text('${index + 1}. ${scriptText('यन्त्रोद्धारक हनुमत्सुळादि', 'ಯಂತ್ರೋದ್ಧಾರಕ ಹನುಮತ್ಸುಳಾದಿ')}', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: c.brandText, height: 1.3)),
+                    title: NumberedTitle(number: index + 1, text: scriptText('यन्त्रोद्धारक हनुमत्सुळादि', 'ಯಂತ್ರೋದ್ಧಾರಕ ಹನುಮತ್ಸುಳಾದಿ'), style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: c.brandText, height: 1.3)),
                     trailing: const Text('Coming soon', style: TextStyle(color: Colors.grey)),
                   ),
                 );
@@ -310,7 +312,7 @@ class _SuladiListScreenState extends State<SuladiListScreen> {
                 child: ListTile(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   leading: bookIcon,
-                  title: Text('${index + 1}. ${suladi.title[AppState.scriptLang] ?? suladi.title['kn'] ?? suladi.title['sa'] ?? ''}', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: c.brandText, height: 1.3)),
+                  title: NumberedTitle(number: index + 1, text: resolveScriptText(suladi.title), style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: c.brandText, height: 1.3)),
                   trailing: const Text('Coming soon', style: TextStyle(color: Colors.grey)),
                 ),
               );

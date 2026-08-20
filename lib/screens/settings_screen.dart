@@ -3,7 +3,6 @@ import '../models/models.dart';
 import '../theme/app_colors.dart';
 import '../widgets/icon_badge.dart';
 
-const _scriptLabels = {'sa': 'Sanskrit', 'kn': 'Kannada'};
 const _meaningLabels = {'kn': 'Kannada', 'en': 'English', 'hi': 'Hindi', 'te': 'Telugu', 'ta': 'Tamil', 'sa': 'Sanskrit'};
 
 class SettingsScreen extends StatefulWidget {
@@ -39,8 +38,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(padding: const EdgeInsets.fromLTRB(16, 16, 16, 4), child: Text('Default Script (verses & titles)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: c.brandText))),
-                    langTile('Sanskrit', 'sa', AppState.scriptLang, AppState.setDefaultScriptLang),
-                    langTile('Kannada', 'kn', AppState.scriptLang, AppState.setDefaultScriptLang),
+                    ...scriptLangLabels.entries.map((e) => langTile(e.value, e.key, AppState.scriptLang, AppState.setDefaultScriptLang)),
                     const Divider(height: 1),
                     Padding(padding: const EdgeInsets.fromLTRB(16, 12, 16, 4), child: Text('Default Meaning Language', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: c.brandText))),
                     langTile('Kannada', 'kn', AppState.meaningLang, AppState.setDefaultMeaningLang),
@@ -72,7 +70,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ListTile(
             leading: const IconBadge(Icons.translate_rounded, size: 40),
             title: const Text('Default Language'),
-            subtitle: Text('${_scriptLabels[AppState.scriptLang]} script · ${_meaningLabels[AppState.meaningLang]} meaning'),
+            subtitle: Text('${scriptLangLabels[AppState.scriptLang]} script · ${_meaningLabels[AppState.meaningLang]} meaning'),
             trailing: const Icon(Icons.chevron_right),
             onTap: _showDefaultLanguagePicker,
           ),
@@ -98,11 +96,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: Text('Version'),
             subtitle: Text('1.0.0 (Flutter V1)'),
           ),
-          ListTile(
-            leading: const IconBadge(Icons.map_rounded, size: 40),
-            title: const Text('Roadmap'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {},
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            child: Text(
+              'Stutimallika brings devotional stotras and suladis from the Dvaita/Madhwa tradition to your pocket — read verses in your preferred script, follow along with meanings, and listen with synced audio.',
+              style: TextStyle(fontSize: 14, height: 1.5, color: c.mutedText),
+            ),
           ),
         ],
       ),

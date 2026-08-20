@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:share_plus/share_plus.dart';
+import '../main.dart';
 import '../models/models.dart';
 import '../theme/app_colors.dart';
 
@@ -23,12 +25,24 @@ class ReaderScreen extends StatefulWidget {
 }
 
 class _ReaderScreenState extends State<ReaderScreen> {
-  int _activeVerse = 0;
+  // Active verse and playback position update many times a second while
+  // audio plays; they live in ValueNotifiers instead of State fields so
+  // only the small widgets that actually depend on them repaint — calling
+  // setState() on the whole screen for every tick was what made scrolling
+  // and the meaning dropdown feel janky.
+  final ValueNotifier<int> _activeVerseNotifier = ValueNotifier(0);
+  final ValueNotifier<Duration> _positionNotifier = ValueNotifier(Duration.zero);
   int? _lastAutoScrolled;
   bool _hasAudio = true;
   final Set<int> _expandedMeanings = {};
 
-  final AudioPlayer _player = AudioPlayer();
+  // Shared, app-scoped player so playback and the OS media notification
+  // survive navigating away from this screen — see services/audio_handler.dart.
+  AudioPlayer get _player => audioHandler.player;
+  StreamSubscription<Duration?>? _durationSub;
+  StreamSubscription<Duration>? _positionSub;
+  StreamSubscription<PlayerState>? _playerStateSub;
+
   double _speed = 1.0;
   bool _isLooping = false;
   Duration _duration = Duration.zero;
@@ -36,7 +50,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
 
   late final List<GlobalKey> _verseKeys;
 
-  String get _title => widget.stotra.title[AppState.scriptLang] ?? widget.stotra.title['kn'] ?? widget.stotra.title['sa'] ?? 'Stotra';
+  String get _title => resolveScriptText(widget.stotra.title).isNotEmpty ? resolveScriptText(widget.stotra.title) : 'Stotra';
 
   @override
   void initState() {
@@ -52,28 +66,47 @@ class _ReaderScreenState extends State<ReaderScreen> {
 
     if (realAssetPath != null) {
       try {
-        final loadedDuration = await _player.setAsset(realAssetPath);
-        if (loadedDuration != null) setState(() => _duration = loadedDuration);
-        _player.durationStream.listen((d) {
+        // If this stotra is already the one loaded (e.g. the user navigated
+        // away and back while it kept playing in the background), don't
+        // reload it — that would restart it from zero.
+        final alreadyLoaded = audioHandler.mediaItem.valueOrNull?.id == realAssetPath;
+        if (!alreadyLoaded) {
+          final loadedDuration = await audioHandler.loadStotra(
+            assetPath: realAssetPath,
+            title: _title,
+            composer: widget.stotra.composer,
+          );
+          if (loadedDuration != null && mounted) setState(() => _duration = loadedDuration);
+        } else if (mounted) {
+          setState(() {
+            _duration = _player.duration ?? Duration.zero;
+            _position = _player.position;
+          });
+        }
+
+        _durationSub = _player.durationStream.listen((d) {
+          if (!mounted) return;
           // Some browsers report an inaccurate/short duration before the file
           // is fully buffered, then correct it later — only accept updates
           // that are at least as long as what we already know, so the
           // progress bar never shrinks out from under an in-progress track.
           if (d != null && d > _duration) setState(() => _duration = d);
         });
-        _player.positionStream.listen((p) {
+        _positionSub = _player.positionStream.listen((p) {
           if (!mounted) return;
-          setState(() {
-            _position = p;
-            if (_duration.inMilliseconds > 0) {
-              int vCount = widget.stotra.verses.length;
-              int msPerVerse = _duration.inMilliseconds ~/ vCount;
-              _activeVerse = (p.inMilliseconds ~/ msPerVerse).clamp(0, vCount - 1);
+          _position = p;
+          _positionNotifier.value = p;
+          if (_duration.inMilliseconds > 0) {
+            int vCount = widget.stotra.verses.length;
+            int msPerVerse = _duration.inMilliseconds ~/ vCount;
+            final newActive = (p.inMilliseconds ~/ msPerVerse).clamp(0, vCount - 1);
+            if (newActive != _activeVerseNotifier.value) {
+              _activeVerseNotifier.value = newActive;
             }
-          });
+          }
           _scrollToActiveVerse();
         });
-        _player.playerStateStream.listen((state) {
+        _playerStateSub = _player.playerStateStream.listen((state) {
           if (state.processingState == ProcessingState.completed) {
             if (_isLooping) {
               _player.seek(Duration.zero);
@@ -86,7 +119,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
         });
       } catch (e) {
         debugPrint('Audio file not found: $realAssetPath');
-        setState(() => _hasAudio = false);
+        if (mounted) setState(() => _hasAudio = false);
       }
     } else {
       setState(() => _hasAudio = false);
@@ -94,19 +127,27 @@ class _ReaderScreenState extends State<ReaderScreen> {
   }
 
   void _scrollToActiveVerse() {
-    if (_lastAutoScrolled == _activeVerse) return;
-    _lastAutoScrolled = _activeVerse;
+    final activeVerse = _activeVerseNotifier.value;
+    if (_lastAutoScrolled == activeVerse) return;
+    _lastAutoScrolled = activeVerse;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final ctx = _verseKeys[_activeVerse].currentContext;
+      final ctx = _verseKeys[activeVerse].currentContext;
       if (ctx != null) {
-        Scrollable.ensureVisible(ctx, duration: const Duration(milliseconds: 450), curve: Curves.easeInOut, alignment: 0.3);
+        Scrollable.ensureVisible(ctx, duration: const Duration(milliseconds: 450), curve: Curves.easeOutCubic, alignment: 0.3);
       }
     });
   }
 
   @override
   void dispose() {
-    _player.dispose();
+    // Don't dispose the player itself — it's shared app-wide so playback
+    // and the notification keep going after this screen closes. Just stop
+    // listening so we don't setState() on a disposed widget.
+    _durationSub?.cancel();
+    _positionSub?.cancel();
+    _playerStateSub?.cancel();
+    _activeVerseNotifier.dispose();
+    _positionNotifier.dispose();
     super.dispose();
   }
 
@@ -137,7 +178,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
   void _shareStotra() {
     final buffer = StringBuffer(_title)..writeln()..writeln();
     for (final verse in widget.stotra.verses) {
-      buffer.writeln(verse.text[AppState.scriptLang] ?? verse.text['kn'] ?? verse.text['sa'] ?? '');
+      buffer.writeln(resolveScriptText(verse.text));
       buffer.writeln();
     }
     Share.share(buffer.toString().trim(), subject: _title);
@@ -145,7 +186,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
 
   void _shareVerse(int index) {
     final verse = widget.stotra.verses[index];
-    final text = verse.text[AppState.scriptLang] ?? verse.text['kn'] ?? verse.text['sa'] ?? '';
+    final text = resolveScriptText(verse.text);
     final meaning = verse.meaning[AppState.meaningLang];
     final buffer = StringBuffer(_title)..writeln()..writeln()..writeln(text);
     if (meaning != null) {
@@ -207,10 +248,9 @@ class _ReaderScreenState extends State<ReaderScreen> {
                           Wrap(
                             spacing: 10,
                             runSpacing: 10,
-                            children: [
-                              pill('Sanskrit', 'sa', AppState.scriptLang, (v) => AppState.scriptLang = v),
-                              pill('Kannada', 'kn', AppState.scriptLang, (v) => AppState.scriptLang = v),
-                            ],
+                            children: scriptLangLabels.entries
+                              .map((e) => pill(e.value, e.key, AppState.scriptLang, (v) => AppState.scriptLang = v))
+                              .toList(),
                           ),
                           const SizedBox(height: 20),
                           const Text('Meaning Language', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
@@ -304,12 +344,17 @@ class _ReaderScreenState extends State<ReaderScreen> {
                         // the viewport instead of leaving dead space below —
                         // longer stotras simply outgrow this and scroll normally.
                         constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            for (int i = 0; i < widget.stotra.verses.length; i++)
-                              _buildVerseCard(context, i, hasBg),
-                          ],
+                        child: ValueListenableBuilder<int>(
+                          valueListenable: _activeVerseNotifier,
+                          builder: (context, activeVerse, _) {
+                            return Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                for (int i = 0; i < widget.stotra.verses.length; i++)
+                                  _buildVerseCard(context, i, hasBg, activeVerse),
+                              ],
+                            );
+                          },
                         ),
                       ),
                     );
@@ -324,12 +369,12 @@ class _ReaderScreenState extends State<ReaderScreen> {
     );
   }
 
-  Widget _buildVerseCard(BuildContext context, int index, bool hasBg) {
+  Widget _buildVerseCard(BuildContext context, int index, bool hasBg, int activeVerse) {
     final c = context.colors;
     final verse = widget.stotra.verses[index];
-    final isActive = index == _activeVerse;
+    final isActive = index == activeVerse;
     final isExpanded = _expandedMeanings.contains(index);
-    final verseText = verse.text[AppState.scriptLang] ?? verse.text['kn'] ?? verse.text['sa'] ?? '';
+    final verseText = resolveScriptText(verse.text);
     final meaningText = verse.meaning[AppState.meaningLang];
 
     final baseTextColor = hasBg ? Colors.white : c.heading;
@@ -417,58 +462,58 @@ class _ReaderScreenState extends State<ReaderScreen> {
       ),
     );
 
-    return GestureDetector(
-      key: _verseKeys[index],
-      onTap: () => setState(() => _activeVerse = index),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            verseRow,
-            AnimatedCrossFade(
-              duration: const Duration(milliseconds: 280),
-              sizeCurve: Curves.easeOutCubic,
-              firstCurve: Curves.easeOut,
-              secondCurve: Curves.easeIn,
-              crossFadeState: isExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-              firstChild: const SizedBox(width: double.infinity, height: 0),
-              secondChild: Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: ConstrainedBox(constraints: BoxConstraints(maxWidth: maxBubbleWidth), child: meaningBubble),
+    return RepaintBoundary(
+      child: GestureDetector(
+        key: _verseKeys[index],
+        onTap: () => _activeVerseNotifier.value = index,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              verseRow,
+              AnimatedCrossFade(
+                duration: const Duration(milliseconds: 280),
+                sizeCurve: Curves.easeOutCubic,
+                firstCurve: Curves.easeOut,
+                secondCurve: Curves.easeIn,
+                crossFadeState: isExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+                firstChild: const SizedBox(width: double.infinity, height: 0),
+                secondChild: Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: ConstrainedBox(constraints: BoxConstraints(maxWidth: maxBubbleWidth), child: meaningBubble),
+                  ),
                 ),
               ),
-            ),
-            if (index < widget.stotra.verses.length - 1)
-              Padding(
-                padding: const EdgeInsets.only(top: 24),
-                child: Divider(height: 1, color: hasBg ? Colors.white24 : c.divider),
-              ),
-          ],
+              if (index < widget.stotra.verses.length - 1)
+                Padding(
+                  padding: const EdgeInsets.only(top: 24),
+                  child: Divider(height: 1, color: hasBg ? Colors.white24 : c.divider),
+                ),
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _bubble({required bool hasBg, required AppColors c, required Widget child, Color? tint, Color? borderColor, required BorderRadius radius}) {
-    Widget box = Container(
+    // No BackdropFilter here on purpose: this bubble lives inside the
+    // scrolling verse list, and a live blur has to re-sample the frame
+    // behind it on every single scroll frame — that's what made scrolling
+    // feel sluggish. A slightly more opaque flat tint keeps the glassy look
+    // at effectively zero cost since it's just a translated layer.
+    return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: tint ?? (hasBg ? Colors.white.withValues(alpha: 0.14) : c.surface),
+        color: tint ?? (hasBg ? Colors.white.withValues(alpha: 0.20) : c.surface),
         borderRadius: radius,
-        border: Border.all(color: borderColor ?? (hasBg ? Colors.white.withValues(alpha: 0.22) : c.divider), width: borderColor != null ? 1.5 : 1),
+        border: Border.all(color: borderColor ?? (hasBg ? Colors.white.withValues(alpha: 0.28) : c.divider), width: borderColor != null ? 1.5 : 1),
       ),
       child: child,
     );
-    if (hasBg) {
-      box = ClipRRect(
-        borderRadius: radius,
-        child: BackdropFilter(filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12), child: box),
-      );
-    }
-    return box;
   }
 
   Widget _pillButton({required BuildContext context, required Widget child, required VoidCallback onTap, bool active = false}) {
@@ -492,7 +537,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
 
   Widget _buildPlayerBar(AppColors c, bool hasBg) {
     Widget bar = Container(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+      padding: EdgeInsets.fromLTRB(16, 8, 16, 16 + MediaQuery.of(context).padding.bottom + 10),
       decoration: BoxDecoration(
         color: hasBg ? Colors.black.withValues(alpha: 0.4) : c.chrome,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
@@ -501,17 +546,22 @@ class _ReaderScreenState extends State<ReaderScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(trackHeight: 3),
-            child: Slider(
-              value: _duration.inMilliseconds > 0 ? (_position.inMilliseconds / _duration.inMilliseconds).clamp(0.0, 1.0) : 0.0,
-              onChanged: (v) {
-                final pos = Duration(milliseconds: (_duration.inMilliseconds * v).round());
-                _player.seek(pos);
-              },
-              activeColor: c.accent,
-              inactiveColor: Colors.white30,
-            ),
+          ValueListenableBuilder<Duration>(
+            valueListenable: _positionNotifier,
+            builder: (context, position, _) {
+              return SliderTheme(
+                data: SliderTheme.of(context).copyWith(trackHeight: 3),
+                child: Slider(
+                  value: _duration.inMilliseconds > 0 ? (position.inMilliseconds / _duration.inMilliseconds).clamp(0.0, 1.0) : 0.0,
+                  onChanged: (v) {
+                    final pos = Duration(milliseconds: (_duration.inMilliseconds * v).round());
+                    _player.seek(pos);
+                  },
+                  activeColor: c.accent,
+                  inactiveColor: Colors.white30,
+                ),
+              );
+            },
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
-import '../theme/app_colors.dart';
 import '../utils/page_transitions.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -62,56 +61,83 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
-    final c = context.colors;
+    const textShadow = [Shadow(color: Colors.black87, blurRadius: 10), Shadow(color: Colors.black54, blurRadius: 24)];
+
     return Scaffold(
-      backgroundColor: c.background,
-      body: Center(
-        child: AnimatedOpacity(
-          duration: const Duration(milliseconds: 260),
-          curve: Curves.easeIn,
-          opacity: _exiting ? 0.0 : 1.0,
-          child: AnimatedBuilder(
-            animation: Listenable.merge([_entrance, _pulse]),
-            builder: (context, _) {
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  FadeTransition(
+      backgroundColor: Colors.black,
+      body: AnimatedOpacity(
+        duration: const Duration(milliseconds: 260),
+        curve: Curves.easeIn,
+        opacity: _exiting ? 0.0 : 1.0,
+        child: AnimatedBuilder(
+          animation: Listenable.merge([_entrance, _pulse]),
+          builder: (context, _) {
+            return Stack(
+              fit: StackFit.expand,
+              children: [
+                Transform.scale(
+                  scale: _pulseScale.value,
+                  child: Image.asset('assets/images/splash screen.jpeg', fit: BoxFit.cover),
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.black.withValues(alpha: 0.5),
+                        Colors.black.withValues(alpha: 0.35),
+                        Colors.black.withValues(alpha: 0.65),
+                      ],
+                      stops: const [0.0, 0.5, 1.0],
+                    ),
+                  ),
+                ),
+                Align(
+                  // Lower than dead-center so the deity's face stays visible
+                  // above the text, with the title sitting around chest height.
+                  alignment: const Alignment(0, 0.42),
+                  child: FadeTransition(
                     opacity: _imageFade,
                     child: ScaleTransition(
                       scale: _imageScale,
-                      child: Transform.scale(
-                        scale: _pulseScale.value,
-                        child: Image.asset('assets/images/splash screen.jpeg', width: 200, height: 200, fit: BoxFit.cover),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 32),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            FadeTransition(
+                              opacity: _titleFade,
+                              child: SlideTransition(
+                                position: _titleSlide,
+                                child: const Text(
+                                  'प्रीतोस्तु कृष्णः प्रभुः',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(fontSize: 40, height: 1.4, fontWeight: FontWeight.bold, color: Colors.white, shadows: textShadow),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            FadeTransition(
+                              opacity: _subtitleFade,
+                              child: SlideTransition(
+                                position: _subtitleSlide,
+                                child: const Text(
+                                  'स्तुतिमल्लिका',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(fontSize: 22, letterSpacing: 1.2, color: Colors.white70, shadows: textShadow),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  FadeTransition(
-                    opacity: _titleFade,
-                    child: SlideTransition(
-                      position: _titleSlide,
-                      child: Text(
-                        'प्रीतोस्तु कृष्णः प्रभुः',
-                        style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: c.brandText),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  FadeTransition(
-                    opacity: _subtitleFade,
-                    child: SlideTransition(
-                      position: _subtitleSlide,
-                      child: Text(
-                        'Stutimallika',
-                        style: TextStyle(fontSize: 18, color: c.brandText),
-                      ),
-                    ),
-                  ),
-                ],
-              );
-            },
-          ),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );

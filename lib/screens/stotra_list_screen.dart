@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../models/models.dart';
 import '../theme/app_colors.dart';
 import '../utils/page_transitions.dart';
+import '../widgets/numbered_title.dart';
 import 'reader_screen.dart';
 
 class StotraListScreen extends StatefulWidget {
@@ -59,7 +60,7 @@ class _StotraListScreenState extends State<StotraListScreen> {
 
               // Only these two currently have real audio wired up in ReaderScreen.
               final hasAudio = stotra.id == 'ramesha-stuti' || stotra.id == 'hayagriva-stotram';
-              final title = stotra.title[AppState.scriptLang] ?? stotra.title['kn'] ?? stotra.title['sa'] ?? '';
+              final title = resolveScriptText(stotra.title);
 
               return Card(
                 elevation: 1,
@@ -68,7 +69,7 @@ class _StotraListScreenState extends State<StotraListScreen> {
                 child: ListTile(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   leading: Icon(Icons.menu_book_rounded, color: c.brandText, size: 28),
-                  title: Text('${index + 1}. $title', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: c.brandText, height: 1.3)),
+                  title: NumberedTitle(number: index + 1, text: title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: c.brandText, height: 1.3)),
                   trailing: hasAudio ? Icon(Icons.play_circle_fill_rounded, color: c.accent, size: 32) : null,
                   onTap: () {
                     Navigator.push(context, smoothRoute(ReaderScreen(stotra: stotra)));

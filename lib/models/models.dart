@@ -1,9 +1,29 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+const scriptLangLabels = {'sa': 'Sanskrit', 'kn': 'Kannada', 'hi': 'Hindi', 'en': 'English', 'te': 'Telugu', 'ta': 'Tamil'};
+
 // Picks between a Sanskrit and Kannada string based on the current script
 // setting — used for static section names/labels not backed by stotras.json.
-String scriptText(String sa, String kn) => AppState.scriptLang == 'sa' ? sa : kn;
+// Hindi reads Devanagari (the same script as Sanskrit), so it maps to `sa`.
+// Telugu/Tamil/English UI labels aren't translated yet, so they fall back to
+// the Sanskrit label rather than showing nothing.
+String scriptText(String sa, String kn) {
+  if (AppState.scriptLang == 'kn') return kn;
+  return sa;
+}
+
+// Resolves a verse/title text map (with 'sa', 'kn', and optionally 'iast'
+// keys) against the current script setting, with script-aware fallbacks:
+// Hindi reads Devanagari (same as Sanskrit) and English reads the IAST
+// Roman transliteration where available. Scripts without dedicated content
+// yet (Telugu, Tamil) fall back to Devanagari rather than showing nothing.
+String resolveScriptText(Map<String, String> textMap) {
+  final lang = AppState.scriptLang;
+  if (lang == 'hi') return textMap['sa'] ?? textMap['kn'] ?? '';
+  if (lang == 'en') return textMap['iast'] ?? textMap['sa'] ?? textMap['kn'] ?? '';
+  return textMap[lang] ?? textMap['sa'] ?? textMap['kn'] ?? '';
+}
 
 class AppState {
   static const _scriptPrefKey = 'default_script_lang';

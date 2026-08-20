@@ -7,7 +7,7 @@ void main() {
     await tester.pumpWidget(const StutiMallikaApp());
     await tester.pump();
 
-    expect(find.text('Stutimallika'), findsOneWidget);
+    expect(find.text('स्तुतिमल्लिका'), findsOneWidget);
 
     // Flush the splash screen's delayed navigation and its transition
     // animation so no timers are left pending when the test ends.

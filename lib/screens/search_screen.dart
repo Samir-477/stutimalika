@@ -157,7 +157,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                   child: Image.asset(img, width: 48, height: 48, fit: BoxFit.cover),
                                 )
                               : Icon(Icons.menu_book_rounded, color: c.brandText),
-                            title: Text(stotra.title[AppState.scriptLang] ?? stotra.title['kn'] ?? stotra.title['sa'] ?? '', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: c.brandText, height: 1.3)),
+                            title: Text(resolveScriptText(stotra.title), style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: c.brandText, height: 1.3)),
                             subtitle: Text(stotra.composer, style: TextStyle(color: c.mutedText)),
                             trailing: hasAudio ? Icon(Icons.play_circle_fill_rounded, color: c.accent, size: 28) : null,
                             onTap: () {

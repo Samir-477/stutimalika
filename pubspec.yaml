@@ -11,11 +11,13 @@ dependencies:
   just_audio: ^0.9.36
   audio_video_progress_bar: ^2.0.3
   flutter_svg: ^2.0.9
+  share_plus: ^10.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
+  flutter_launcher_icons: ^0.14.1
 
 flutter:
   uses-material-design: true
@@ -23,3 +25,12 @@ flutter:
     - assets/data/
     - assets/images/
     - assets/audio/
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/app_icon.png"
+  min_sdk_android: 21
+  remove_alpha_ios: true
+  adaptive_icon_background: "#F3E7D6"
+  adaptive_icon_foreground: "assets/images/app_icon.png"

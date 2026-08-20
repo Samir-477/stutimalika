@@ -2,11 +2,14 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/models.dart';
+import '../theme/app_colors.dart';
+import '../utils/page_transitions.dart';
 import 'reader_screen.dart';
 
 class StotraListScreen extends StatefulWidget {
   final String composer;
-  const StotraListScreen({super.key, required this.composer});
+  final String? title;
+  const StotraListScreen({super.key, required this.composer, this.title});
   @override
   State<StotraListScreen> createState() => _StotraListScreenState();
 }
@@ -28,7 +31,7 @@ class _StotraListScreenState extends State<StotraListScreen> {
       setState(() {
         stotras = jsonList
             .map((j) => Stotra.fromJson(j))
-            .where((s) => s.category != 'suladi')
+            .where((s) => s.category != 'suladi' && s.composer == widget.composer)
             .toList();
       });
     } catch (e) {
@@ -38,36 +41,37 @@ class _StotraListScreenState extends State<StotraListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Scaffold(
-      appBar: AppBar(title: Text(widget.composer)),
-      body: error != null 
+      appBar: AppBar(
+        toolbarHeight: 72,
+        title: Text(widget.title ?? widget.composer, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 18)),
+      ),
+      body: error != null
         ? Center(child: Text('Error: $error', style: const TextStyle(color: Colors.red)))
-        : stotras.isEmpty 
+        : stotras.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : ListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: stotras.length,
             itemBuilder: (context, index) {
               final stotra = stotras[index];
-              String? img;
-              if (stotra.id == 'hayagriva') img = 'assets/images/hayagreevastotram.jpeg';
-              if (stotra.id == 'ramesha') img = 'assets/images/rameshastuti.jpeg';
-              
+
+              // Only these two currently have real audio wired up in ReaderScreen.
+              final hasAudio = stotra.id == 'ramesha-stuti' || stotra.id == 'hayagriva-stotram';
+              final title = stotra.title[AppState.scriptLang] ?? stotra.title['kn'] ?? stotra.title['sa'] ?? '';
+
               return Card(
                 elevation: 1,
                 margin: const EdgeInsets.only(bottom: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                 child: ListTile(
-                  leading: img != null 
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.asset(img, width: 50, height: 50, fit: BoxFit.cover),
-                      )
-                    : null,
-                  title: Text(stotra.title[AppState.globalLang] ?? stotra.title['kn'] ?? stotra.title['sa'] ?? '', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF7C5A3A))),
-                  trailing: const Icon(Icons.play_arrow, color: Color(0xFFE8863A)),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  leading: Icon(Icons.menu_book_rounded, color: c.brandText, size: 28),
+                  title: Text('${index + 1}. $title', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: c.brandText, height: 1.3)),
+                  trailing: hasAudio ? Icon(Icons.play_circle_fill_rounded, color: c.accent, size: 32) : null,
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => ReaderScreen(stotra: stotra)));
+                    Navigator.push(context, smoothRoute(ReaderScreen(stotra: stotra)));
                   },
                 ),
               );

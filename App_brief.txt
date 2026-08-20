@@ -1,0 +1,189 @@
+# Stutimallika (स्तुतिमल्लिका) — Full App Brief 
+Hey — here's the detailed structure and the first real batch of content, ready to copy-paste in. 
+
+## Navigation structure
+Home screen has 3 top-level categories. **स्तुति विभाग (Stotra) has one extra layer** — it opens into 7 composer sub-sections first, then each sub-section opens into its list of stotras. Suladi and Kirtan stay flat (category → list → reader).
+
+```
+Home
+ ├─ स्तुति विभाग (Stotra Vibhaga)
+ │   ├─ १. वेदव्यासदेवकृतस्तोत्राणि        → coming soon
+ │   ├─ २. श्रीमध्वाचार्यकृतस्तोत्राणि       → coming soon
+ │   ├─ ३. श्रीवादिराजतीर्थकृतस्तोत्राणि    → 2 stotras ready (below)
+ │   ├─ ४. श्रीविजयीन्द्रतीर्थकृतस्तोत्राणि  → coming soon
+ │   ├─ ५. श्रीव्यासराजतीर्थकृतस्तोत्राणि   → coming soon
+ │   ├─ ६. श्रीराघवेन्द्रतीर्थकृतस्तोत्राणि  → coming soon
+ │   └─ ७. अन्यकृतस्तोत्राणि              → coming soon
+ │
+ ├─ कीर्तन विभाग (Kirtan Vibhaga) → coming soon (whole category, no sub-list needed)
+ │
+ └─ सुळादि विभाग (Suladi Vibhaga) → flat list, all "coming soon" for now
+     ├─ १. ನರಸಿಂಹ ಸುಳಾದಿ
+     ├─ २. ಕಪಿಲ ಸುಳಾದಿ
+     ├─ ३. ಧನ್ವಂತರಿ ಸುಳಾದಿ
+     ├─ ४. ದುರ್ಗಾ ಸುಳಾದಿ
+     ├─ ५. ಮುಖ್ಯಪ್ರಾಣ ಸುಳಾದಿ
+     └─ ६. ಯಂತ್ರೋದ್ಧಾರಕಹನುಮತ್ಸುಳಾದಿ
+```
+
+So the data model needs one more level for Stotra Vibhaga specifically:
+`Category → Subcategory (composer) → Stotra → Verses`
+while Suladi/Kirtan stay: `Category → Item → Verses`
+
+## Reader screen — the format every verse follows
+Each verse is its own card:
+1. Devanagari/Kannada verse text, large serif
+2. Divider
+3. The **meaning printed directly underneath, in Kannada**, italic, muted color — tap needed to reveal it
+
+
+## Ready content: श्रीवादिराजतीर्थकृतस्तोत्राणि (subsection 3)
+This subsection has **2 stotras** ready to go in for launch. Everything below is final text — copy it exactly, don't paraphrase or re-translate.
+
+### Stotra 1 — हयग्रीवसम्पदास्तोत्रम्
+
+**Verse 1**
+```
+हयग्रीव हयग्रीव
+हयग्रीवेति वादिनम् |
+नरं मुञ्चन्ति पापानि
+दरिद्रमिव योषितः||
+```
+Meaning (Kannada):
+```
+ಹಯಗ್ರೀವ ಹಯಾಗ್ಗಿರಿಯ ಹಯಗ್ರೀವ ಎಂದು ಮೂರು ಬಾರಿ ಯಾರು ಸ್ಮರಣೆ ಮಾಡುತ್ತಾರೋ ಅಂತಹ ಮನುಷ್ಯರನ್ನು, ಸ್ತ್ರೀಯರು ಒಬ್ಬ ದರಿದ್ರನನ್ನು ಬಿಟ್ಟು ಹೋದಂತೆ ಪಾಪಗಳು ಬಿಟ್ಟು ಹೋಗುತ್ತವೆ
+```
+
+**Verse 2**
+```
+हयग्रीव हयग्रीव
+हयग्रीवेति यो वदेत् |
+तस्य निस्सरते वाणी
+जह्नुकन्याप्रवाहवत् ||
+```
+Meaning (Kannada):
+```
+ಹಯಗ್ರೀವ ಹಯಗ್ರೀವ ಹಯಗ್ರೀವ ಎಂದು ಯಾರೂ ಹೇಳುತ್ತಾರೋ ಅವನ ಮಾತು ಗಂಗೆಯಂತೆ ಏಕಪ್ರಕಾರವಾಗಿ ನಿಲುಗಡೆ ಇಲ್ಲದೆ ಬರುವುದು
+```
+
+**Verse 3 (Phala Shruti)**
+```
+श्लोकत्रयमिदं पुण्यं हयग्रीवपदाङ्कितम् |
+वादिराजयति प्रोक्तं पठतां सम्पदां पदम् ||
+```
+Meaning (Kannada):
+```
+ಹಯಗ್ರೀವ ಎಂಬ ಪದದಿಂದ ಅಲಂಕೃತವಾದ ಈ ಮೂರು ಶ್ಲೋಕಗಳು ಪುಣ್ಯಪ್ರದವಾದುವುಗಳು. ವಾದಿರಾಜ ಯತಿಗಳಿಂದ ಈ ಹಯಗ್ರೀವಸಂಪದಾ ಸ್ತೋತ್ರವು ಸಮಸ್ತ ಸಂಪತ್ತುಗಳಿಗೆ ಸ್ಥಾನವನಿಸಿದೆ.
+```
+
+---
+
+### Stotra 2 — रमेशस्तुतिः
+
+**Verse 1**
+```
+प्रातः स्मरामि वरकुण्डलशोभिगण्डं
+शीतांशुमण्डलमुखं सितवारिजाक्षम् ।
+आताम्रकम्रमुदिताधरबिम्बजृम्भं
+ध्यातृप्रहर्षकरहासरसं रमेशम् ॥
+```
+Meaning (Kannada):
+```
+ಬೆಳಿಗ್ಗೆ ಎದ್ದ ಕೂಡಲೇ ಮೊದಲು ಲಕ್ಷ್ಮೀದೇವಿಗೆ ಅತಿಯಾದ ಹರಿಯನ್ನು ಸ್ಮರಿಸುತ್ತೇನೆ. ಚಂದ್ರಮಂಡಲದಂತೆ ಸುಂದರವಾದ ಮುಖ, ರಾಮೇಶ್ವರನ ಕಿವಿಯಲ್ಲಿ ಹಾಕಿದ ಕರ್ಣಕುಂಡಲಗಳ ಕಾಂತಿಯಿಂದ ಅವನ ಎರಡು ಕಪೋಲಗಳು ಶೋಭಿಸುತ್ತಿವೆ. ಬಿಳಿ ತಾವರೆಯ ಸೊಬಗನ್ನು ಸೂಸುತ್ತಲಿವೆ ಅವನ ಎರಡು ಕಣ್ಣುಗಳು. ಕಡುಗೆಂಪು ಬಣ್ಣದ ಅವನ ತುಟಿಯ ಮೇಲೆ ಮಿನುಗುವ ಮುಗುಳುನಗೆಯು ಬಗೆಯಲ್ಲಿ ನೆನೆಯುವವರಿಗೆ ಸಂತೋಷವನ್ನುಂಟು ಮಾಡುವುದು. (ಇಂತಹ ಮಂದಹಾಸದಿಂದ ಅಂದವಾಗಿ ಒಪ್ಪುವ ಶ್ರೀಹರಿಯ ಕೆಂದಾವರೆಯಂತೆ ಸುಂದರವಾದ ಮುಖ ಮಂಡಲವನ್ನು ಎಲ್ಲರೂ ಪ್ರಾತಃ ಕಾಲದಲ್ಲಿ ಪ್ರತಿನಿತ್ಯವೂ ಸ್ಮರಿಸಬೇಕು).
+```
+
+**Verse 2**
+```
+प्रातर्भजामि शुभकौस्तुभकम्बुकण्ठं
+स्फीतात्मवक्षसि विराजितभूरिहारम् ।
+भीतस्वभक्तभयभञ्जनपाणिपद्मं
+शातोदरार्पितजगद्भरमब्जनाभम् ॥
+```
+Meaning (Kannada):
+```
+ಮಂಗಳಕರವಾದ ಕೌಸ್ತುಭರತ್ನವನ್ನು ಕೊರಳಲ್ಲಿ ಧರಿಸಿ ಶೋಭಿಸುವ ಪದ್ಮನಾಭಸ್ವಾಮಿಯನ್ನು ಮುಂಜಾವಿನಲ್ಲಿ ಭಜನೆ ಮಾಡುತ್ತೇನೆ. ಅವನ ವಿಶಾಲವಾದ ಎದೆಯ ಮೇಲೆ ವನಮಾಲಾ ವೈಜಯಂತೀ, ಕಮಲಹಾರ ತುಳಸಿಹಾರ ಮುಂತಾದ ಬಗೆ ಬಗೆಯ ಮಾಲೆಗಳು ಒಪ್ಪುತ್ತಲಿವೆ. ತನ್ನ ಭಕ್ತರ ಭಯಗಳನ್ನೆಲ್ಲ ಅವನ ಹಸ್ತ ಕಮಲವು ನಾಶ ಮಾಡಿಬಿಡುತ್ತದೆ ಅವನ ಕೃಶವಾದ ಹೊಟ್ಟೆಯಲ್ಲಿ ಹದಿನಾಲ್ಕು ಲೋಕಗಳು ಅಡಗಿವೆ.
+```
+
+**Verse 3**
+```
+प्रातर्नमामि शुभकिङ्किणिमेखलाङ्गं
+पीताम्बरं करिकरोरुमुदारजानुम् |
+ख्याताड्घ्रियुग्मरुचिरञ्जितकंजजात
+वातादिदेववरमौलिमणिं मुकुन्दम् ||
+```
+Meaning (Kannada):
+```
+ಇರು ಗೆಜ್ಜೆಗಳಿಂದ ಕಿಂಕಿಣಿಸುವ ನಡುಪಟ್ಟಿಯಿಂದ ಅಲಂಕೃತನಾದ ಪೀತಾಂಬರವನ್ನು ಧರಿಸಿದ ಮುಕುಂದನನ್ನು ಪ್ರಾತ:ಕಾಲದಲ್ಲಿ‌ ನಮಸ್ಕರಿಸುತ್ತೇನೆ. ಆನೆಯ ಸೊಂಡಿಲಿನಂತೆ ತೊಡೆಗಳು, ಶ್ರೇಷ್ಠವಾದ ಮೊಣಗಂಟುಗಳು, ಕೀರ್ತಿಸಂಪನ್ನವಾದ ಎರಡು ಪಾದಗಳಿಂದ ಮನೋಹರನಾದ, ಬ್ರಹ್ಮಪ್ರಾಣರಿಗೆ ಶಿಖಾಮಣಿಯಂತಿರುವ ಮುಕುಂದನನ್ನು ಪ್ರಾತ:ಕಾಲದಲ್ಲಿ‌ ಸ್ಮರಿಸುತ್ತೇನೆ.
+```
+
+**Verse 4 (Phala Shruti)**
+```
+वादिराजयतिप्रोक्तं श्लोकत्रयमिदं सदा ।
+प्रातःकाले पठन्मर्त्यः सर्वपापैः प्रमुच्यते ॥
+```
+Meaning (Kannada):
+```
+ಶ್ರೀ ವಾದಿರಾಜರು ರಚಿಸಿದ ಈ ಮೂರು ಪದ್ಯಗಳ ಪ್ರಾತ:ಸ್ತೋತ್ರವು ಪರಮ ಮಂಗಳಕರ. ಇದನ್ನು ಬೆಳಗಿನ ಜಾವ ಪಠಿಸಿದವರ ಪಾಪಗಳೆಲ್ಲವೂ ತಾನಾಗಿ ಬಿಟ್ಟು ಹೋಗುವವು
+```
+
+---
+
+## Suladi content — sourcing
+
+For the 6 suladis, you can find the lyrics (they're available online — search by name, e.g. "ನರಸಿಂಹ ಸುಳಾದಿ lyrics"). **Meanings are not required for suladis** — lyrics only, same verse-card format as the stotras, just without the meaning section underneath.
+
+## Everything else (all other subsections  + kirtan)
+
+Leave these as **"Content coming soon"** placeholders — same empty-state screen, just different labels. I'll send the text for each one exactly like the above, in this same copy-paste-ready format, as I get them ready. Please don't summarize, shorten, or auto-translate anything yourself — I'll always give you the full Sanskrit/Kannada and its meaning verbatim.
+
+## Features checklist (make sure these 5 are all in there)
+
+1. **Pull down Notifications** — Should display the current stotra/song being played with options to play/pause, next and previous .
+2. **Play speed** — on the reader's player bar, a tappable control that cycles the playback speed (e.g. 1.0x → 1.25x → 1.5x → 2.0x → 0.75x → back to 1.0x).
+3. **5 sec skip** — two buttons on the player bar: skip back 5 seconds and skip forward 5 seconds, either side of the main play/pause button.
+4. **Loop** — a toggle on the player bar that repeats the current audio track when it ends, instead of stopping.
+5. **Share** — a share icon on each individual verse card (not just the whole stotra) that lets someone share that specific verse — text is fine for v1, doesn't need to bundle audio.
+
+All of these live on the **Reader screen** except notifications, which is app-wide (fires regardless of which screen you're on, and deep-links into the relevant stotra on tap).
+
+## Splash screen
+
+On app launch, before the Home screen loads, show a splash screen with just this text seen:
+
+```
+प्रीतोस्तु कृष्णः प्रभुः
+```
+
+Keep it simple — same warm brown/cream theme as the rest of the app, large serif Devanagari text, maybe the app name small underneath it. No need for a logo or animation unless you want to add a gentle fade-in.
+
+## Language support
+
+The app needs to support **6 languages** for the verse meanings (the original Sanskrit/Kannada verse text itself never changes — only the meaning underneath it switches):
+1. Kannada (ready now — this is what I've been sending you)
+2. English
+3. Hindi
+4. Telugu
+5. Tamil
+6. Sanskrit (a plain-language Sanskrit gloss, separate from the verse itself)
+
+**It should switch automatically** — on first launch, detect the phone's system language and show meanings in that language by default (fall back to Kannada if the phone's language isn't one of the 6). The "अA" icon already on the Home and Reader screens should let someone manually override that at any time, and the app should remember their choice after that.
+
+Build the data model so each verse can hold a meaning per language, e.g.:
+```
+Verse {
+  num,
+  text,
+  meanings: { kn: "...", en: "...", hi: "...", te: "...", ta: "...", sa: "..." }
+}
+```
+working language auto-detect + switch module is to be implemented
+
+## Look & feel (unchanged from before)
+- Warm temple theme: brown `#7C5A3A` header, cream `#F3E7D6` background, off-white `#FFFAF3` cards, orange `#E8863A` accent (play button etc.)
+- Serif font, rounded cards, soft borders — should feel like a prayer book, not a generic app
+- Bottom audio player on the reader screen: play/pause, ±5s skip, speed control, loop toggle. No audio files yet — a working fake timer is fine for now, real audio comes later.
+- Favorites (heart icon) on every stotra, a "My Favorites" screen off the home screen.
+
+## Tech
+- Flutter / Android Studio project, nothing fancy — no login, no backend/database for v1. 
+Favorites can live in memory or local storage.

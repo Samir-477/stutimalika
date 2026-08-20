@@ -72,7 +72,7 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    return Scaffold(
+    return ScriptListener(builder: (context) => Scaffold(
       appBar: AppBar(
         titleSpacing: 0,
         title: TextField(
@@ -81,7 +81,7 @@ class _SearchScreenState extends State<SearchScreen> {
           style: const TextStyle(color: Colors.white, fontSize: 18),
           cursorColor: Colors.white,
           decoration: InputDecoration(
-            hintText: scriptText('स्तोत्रं गवेषयतु...', 'ಹುಡುಕಿ...'),
+            hintText: scriptText('स्तोत्रं गवेषयतु...', 'ಹುಡುಕಿ...', 'Search stotras...'),
             hintStyle: const TextStyle(color: Colors.white70),
             border: InputBorder.none,
           ),
@@ -108,11 +108,11 @@ class _SearchScreenState extends State<SearchScreen> {
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
             child: Row(
               children: [
-                _filterChip(context, 'all', scriptText('सर्वे', 'ಎಲ್ಲಾ')),
+                _filterChip(context, 'all', scriptText('सर्वे', 'ಎಲ್ಲಾ', 'All')),
                 const SizedBox(width: 8),
-                _filterChip(context, 'stuti', scriptText('स्तोत्राणि', 'ಸ್ತೋತ್ರಗಳು')),
+                _filterChip(context, 'stuti', scriptText('स्तोत्राणि', 'ಸ್ತೋತ್ರಗಳು', 'Stotras')),
                 const SizedBox(width: 8),
-                _filterChip(context, 'suladi', scriptText('सुळादि', 'ಸುಳಾದಿ')),
+                _filterChip(context, 'suladi', scriptText('सुळादि', 'ಸುಳಾದಿ', 'Suladi')),
               ],
             ),
           ),
@@ -125,8 +125,8 @@ class _SearchScreenState extends State<SearchScreen> {
                   ? Center(
                       child: Text(
                         _query.trim().isEmpty
-                          ? scriptText('टङ्कयित्वा गवेषयतु', 'ಹುಡುಕಲು ಟೈಪ್ ಮಾಡಿ')
-                          : scriptText('कोऽपि परिणामो न प्राप्तः', 'ಯಾವುದೇ ಫಲಿತಾಂಶಗಳು ಸಿಗಲಿಲ್ಲ'),
+                          ? scriptText('टङ्कयित्वा गवेषयतु', 'ಹುಡುಕಲು ಟೈಪ್ ಮಾಡಿ', 'Type to search')
+                          : scriptText('कोऽपि परिणामो न प्राप्तः', 'ಯಾವುದೇ ಫಲಿತಾಂಶಗಳು ಸಿಗಲಿಲ್ಲ', 'No results found'),
                         style: TextStyle(color: c.mutedText, fontSize: 15),
                       ),
                     )
@@ -141,6 +141,9 @@ class _SearchScreenState extends State<SearchScreen> {
                         if (stotra.id == 'sri-narasimha-devara-suladi') img = 'assets/images/narsimha suladi.jpeg';
                         if (stotra.id == 'durga-suladhi') img = 'assets/images/durga suladi.jpeg';
                         if (stotra.id == 'sri-mukhya-prana-suladi') img = 'assets/images/mukhyaprana suladi.jpeg';
+                        // No dedicated artwork exists for these two — reuse existing images.
+                        if (stotra.id == 'sri-kapila-devara-suladi') img = 'assets/images/rameshastuti.jpeg';
+                        if (stotra.id == 'dhanvanthri-suladhi') img = 'assets/images/hayagreevastotram.jpeg';
 
                         // Only these two currently have real audio wired up in ReaderScreen.
                         final hasAudio = stotra.id == 'ramesha-stuti' || stotra.id == 'hayagriva-stotram';
@@ -170,7 +173,7 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
         ],
       ),
-    );
+    ));
   }
 
   Widget _filterChip(BuildContext context, String value, String label) {

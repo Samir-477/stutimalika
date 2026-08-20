@@ -12,6 +12,12 @@ import '../theme/app_colors.dart';
 const Map<String, String> _stotraBackgroundImages = {
   'ramesha-stuti': 'assets/images/rameshastuti.jpeg',
   'hayagriva-stotram': 'assets/images/hayagreevastotram.jpeg',
+  'sri-mukhya-prana-suladi': 'assets/images/mukhyaprana suladi.jpeg',
+  'sri-narasimha-devara-suladi': 'assets/images/narsimha suladi.jpeg',
+  'durga-suladhi': 'assets/images/durga suladi.jpeg',
+  // No dedicated artwork exists for these two — reuse existing images.
+  'sri-kapila-devara-suladi': 'assets/images/rameshastuti.jpeg',
+  'dhanvanthri-suladhi': 'assets/images/hayagreevastotram.jpeg',
 };
 
 const _meaningLangLabels = {'kn': 'Kannada', 'en': 'English', 'hi': 'Hindi', 'te': 'Telugu', 'ta': 'Tamil', 'sa': 'Sanskrit'};
@@ -47,6 +53,17 @@ class _ReaderScreenState extends State<ReaderScreen> {
   bool _isLooping = false;
   Duration _duration = Duration.zero;
   Duration _position = Duration.zero;
+
+  // Content without a real audio file yet (e.g. suladis, until the client
+  // supplies recordings) still gets the identical player bar UI, but it's
+  // driven by a synthetic reading clock instead of just_audio — a constant
+  // per-verse pace that auto-advances the active verse and keeps scrolling,
+  // so play/pause/speed/loop/seek all behave the same way they will once
+  // real audio is wired in later.
+  static const _simSecondsPerVerse = 10;
+  Timer? _simTimer;
+  Duration _simPosition = Duration.zero;
+  final ValueNotifier<bool> _simPlayingNotifier = ValueNotifier(false);
 
   late final List<GlobalKey> _verseKeys;
 
@@ -122,8 +139,58 @@ class _ReaderScreenState extends State<ReaderScreen> {
         if (mounted) setState(() => _hasAudio = false);
       }
     } else {
-      setState(() => _hasAudio = false);
+      setState(() {
+        _hasAudio = false;
+        _duration = Duration(seconds: widget.stotra.verses.length * _simSecondsPerVerse);
+      });
     }
+  }
+
+  void _toggleSimPlay() {
+    if (_simPlayingNotifier.value) {
+      _stopSimTimer();
+    } else {
+      _startSimTimer();
+    }
+  }
+
+  void _startSimTimer() {
+    if (_simPosition >= _duration) _simPosition = Duration.zero;
+    _simPlayingNotifier.value = true;
+    _simTimer?.cancel();
+    const tick = Duration(milliseconds: 200);
+    _simTimer = Timer.periodic(tick, (_) {
+      _setSimPosition(_simPosition + tick * _speed);
+    });
+  }
+
+  void _stopSimTimer() {
+    _simTimer?.cancel();
+    _simTimer = null;
+    _simPlayingNotifier.value = false;
+  }
+
+  void _setSimPosition(Duration pos) {
+    if (pos >= _duration) {
+      if (_isLooping) {
+        pos = Duration.zero;
+      } else {
+        pos = _duration;
+        _stopSimTimer();
+      }
+    }
+    _simPosition = pos;
+    _position = pos;
+    _positionNotifier.value = pos;
+    final vCount = widget.stotra.verses.length;
+    if (_duration.inMilliseconds > 0) {
+      final msPerVerse = _duration.inMilliseconds ~/ vCount;
+      final newActive = (pos.inMilliseconds ~/ msPerVerse).clamp(0, vCount - 1);
+      if (newActive != _activeVerseNotifier.value) {
+        _activeVerseNotifier.value = newActive;
+      }
+    }
+    _scrollToActiveVerse();
   }
 
   void _scrollToActiveVerse() {
@@ -146,8 +213,10 @@ class _ReaderScreenState extends State<ReaderScreen> {
     _durationSub?.cancel();
     _positionSub?.cancel();
     _playerStateSub?.cancel();
+    _simTimer?.cancel();
     _activeVerseNotifier.dispose();
     _positionNotifier.dispose();
+    _simPlayingNotifier.dispose();
     super.dispose();
   }
 
@@ -165,14 +234,21 @@ class _ReaderScreenState extends State<ReaderScreen> {
         _speed = 1.0;
       }
     });
-    _player.setSpeed(_speed);
+    if (_hasAudio) _player.setSpeed(_speed);
   }
 
   void _skip(int seconds) {
-    var newPos = _position + Duration(seconds: seconds);
-    if (newPos < Duration.zero) newPos = Duration.zero;
-    if (newPos > _duration) newPos = _duration;
-    audioHandler.seek(newPos);
+    if (_hasAudio) {
+      var newPos = _position + Duration(seconds: seconds);
+      if (newPos < Duration.zero) newPos = Duration.zero;
+      if (newPos > _duration) newPos = _duration;
+      audioHandler.seek(newPos);
+    } else {
+      var newPos = _simPosition + Duration(seconds: seconds);
+      if (newPos < Duration.zero) newPos = Duration.zero;
+      if (newPos > _duration) newPos = _duration;
+      _setSimPosition(newPos);
+    }
   }
 
   void _shareStotra() {
@@ -281,7 +357,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
     final bgImage = _stotraBackgroundImages[widget.stotra.id];
     final hasBg = bgImage != null;
 
-    return Scaffold(
+    return ScriptListener(builder: (context) => Scaffold(
       extendBodyBehindAppBar: true,
       backgroundColor: c.background,
       appBar: AppBar(
@@ -366,7 +442,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
           ),
         ],
       ),
-    );
+    ));
   }
 
   Widget _buildVerseCard(BuildContext context, int index, bool hasBg, int activeVerse) {
@@ -555,7 +631,11 @@ class _ReaderScreenState extends State<ReaderScreen> {
                   value: _duration.inMilliseconds > 0 ? (position.inMilliseconds / _duration.inMilliseconds).clamp(0.0, 1.0) : 0.0,
                   onChanged: (v) {
                     final pos = Duration(milliseconds: (_duration.inMilliseconds * v).round());
-                    audioHandler.seek(pos);
+                    if (_hasAudio) {
+                      audioHandler.seek(pos);
+                    } else {
+                      _setSimPosition(pos);
+                    }
                   },
                   activeColor: c.accent,
                   inactiveColor: Colors.white30,
@@ -578,41 +658,51 @@ class _ReaderScreenState extends State<ReaderScreen> {
                 ),
               ),
               IconButton(icon: const Icon(Icons.replay_5, color: Colors.white), onPressed: () => _skip(-5)),
-              StreamBuilder<PlayerState>(
-                stream: _player.playerStateStream,
-                builder: (context, snapshot) {
-                  if (!_hasAudio) {
-                    return const Padding(
-                      padding: EdgeInsets.all(12.0),
-                      child: Icon(Icons.music_off, color: Colors.white54),
-                    );
-                  }
+              _hasAudio
+                ? StreamBuilder<PlayerState>(
+                    stream: _player.playerStateStream,
+                    builder: (context, snapshot) {
+                      final playerState = snapshot.data;
+                      final processingState = playerState?.processingState;
+                      final playing = playerState?.playing ?? false;
 
-                  final playerState = snapshot.data;
-                  final processingState = playerState?.processingState;
-                  final playing = playerState?.playing ?? false;
-
-                  if (processingState == ProcessingState.loading || processingState == ProcessingState.buffering) {
-                    return CircularProgressIndicator(color: c.accent);
-                  }
-                  return FloatingActionButton(
-                    backgroundColor: c.accent,
-                    onPressed: playing ? audioHandler.pause : audioHandler.play,
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 200),
-                      transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
-                      child: Icon(playing ? Icons.pause : Icons.play_arrow, key: ValueKey(playing), color: Colors.white),
-                    ),
-                  );
-                }
-              ),
+                      if (processingState == ProcessingState.loading || processingState == ProcessingState.buffering) {
+                        return CircularProgressIndicator(color: c.accent);
+                      }
+                      return FloatingActionButton(
+                        backgroundColor: c.accent,
+                        onPressed: playing ? audioHandler.pause : audioHandler.play,
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 200),
+                          transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
+                          child: Icon(playing ? Icons.pause : Icons.play_arrow, key: ValueKey(playing), color: Colors.white),
+                        ),
+                      );
+                    }
+                  )
+                // No real audio yet — same play/pause control, driven by the
+                // synthetic reading clock instead of just_audio.
+                : ValueListenableBuilder<bool>(
+                    valueListenable: _simPlayingNotifier,
+                    builder: (context, playing, _) {
+                      return FloatingActionButton(
+                        backgroundColor: c.accent,
+                        onPressed: _toggleSimPlay,
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 200),
+                          transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
+                          child: Icon(playing ? Icons.pause : Icons.play_arrow, key: ValueKey(playing), color: Colors.white),
+                        ),
+                      );
+                    },
+                  ),
               IconButton(icon: const Icon(Icons.forward_5, color: Colors.white), onPressed: () => _skip(5)),
               _pillButton(
                 context: context,
                 active: _isLooping,
                 onTap: () => setState(() {
                   _isLooping = !_isLooping;
-                  _player.setLoopMode(_isLooping ? LoopMode.one : LoopMode.off);
+                  if (_hasAudio) _player.setLoopMode(_isLooping ? LoopMode.one : LoopMode.off);
                 }),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,

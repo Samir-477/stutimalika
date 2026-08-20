@@ -64,9 +64,14 @@ class StutiMallikaApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<bool>(
-      valueListenable: AppState.darkMode,
-      builder: (context, isDark, _) {
+    // Rebuilds the whole app the moment script/meaning language or dark mode
+    // changes anywhere — the Home appbar, deep inside the Reader screen,
+    // Settings — so every screen stays in sync instead of only whichever one
+    // happened to make the change.
+    return AnimatedBuilder(
+      animation: Listenable.merge([AppState.darkMode, AppState.scriptLangListenable, AppState.meaningLangListenable]),
+      builder: (context, _) {
+        final isDark = AppState.darkMode.value;
         return MaterialApp(
           title: 'Stutimallika',
           theme: _buildTheme(AppColors.light, Brightness.light),

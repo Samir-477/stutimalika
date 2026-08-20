@@ -48,12 +48,12 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    return Scaffold(
+    return ScriptListener(builder: (context) => Scaffold(
       appBar: AppBar(
         toolbarHeight: 72,
         centerTitle: false,
         title: Text(
-          scriptText('स्तुतिमल्लिका', 'ಸ್ತುತಿಮಲ್ಲಿಕಾ'),
+          scriptText('स्तुतिमल्लिका', 'ಸ್ತುತಿಮಲ್ಲಿಕಾ', 'Stutimallika'),
           style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
         ),
         actions: [
@@ -78,16 +78,16 @@ class _HomeScreenState extends State<HomeScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Text(scriptText('Recently Played', 'ಇತ್ತೀಚೆಗೆ ಆಲಿಸಿದ್ದು'), style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: c.heading)),
+          Text(scriptText('Recently Played', 'ಇತ್ತೀಚೆಗೆ ಆಲಿಸಿದ್ದು', 'Recently Played'), style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: c.heading)),
           const SizedBox(height: 12),
           SizedBox(
             height: 140,
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: [
-                _buildRecentCard(context, 'assets/images/rameshastuti.jpeg', 'ramesha-stuti', scriptText('श्रीवादिराजतीर्थ विरचित\nरमेशस्तुतिः', 'ಶ್ರೀವಾದಿರಾಜತೀರ್ಥ ವಿರಚಿತ\nರಮೇಶಸ್ತುತಿಃ')),
+                _buildRecentCard(context, 'assets/images/rameshastuti.jpeg', 'ramesha-stuti', scriptText('श्रीवादिराजतीर्थ विरचित\nरमेशस्तुतिः', 'ಶ್ರೀವಾದಿರಾಜತೀರ್ಥ ವಿರಚಿತ\nರಮೇಶಸ್ತುತಿಃ', 'Sri Vadiraja Tirtha\nRamesha Stuti')),
                 const SizedBox(width: 12),
-                _buildRecentCard(context, 'assets/images/hayagreevastotram.jpeg', 'hayagriva-stotram', scriptText('श्रीवादिराजतीर्थ विरचित\nहयग्रीवसम्पदास्तोत्रम्', 'ಶ್ರೀವಾದಿರಾಜತೀರ್ಥ ವಿರಚಿತ\nಹಯಗ್ರೀವಸಂಪದಾಸ್ತೋತ್ರಮ್')),
+                _buildRecentCard(context, 'assets/images/hayagreevastotram.jpeg', 'hayagriva-stotram', scriptText('श्रीवादिराजतीर्थ विरचित\nहयग्रीवसम्पदास्तोत्रम्', 'ಶ್ರೀವಾದಿರಾಜತೀರ್ಥ ವಿರಚಿತ\nಹಯಗ್ರೀವಸಂಪದಾಸ್ತೋತ್ರಮ್', 'Sri Vadiraja Tirtha\nHayagriva Sampada Stotram')),
               ],
             ),
           ),
@@ -110,14 +110,14 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          Text(scriptText('Categories', 'ವಿಭಾಗಗಳು'), style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: c.heading)),
+          Text(scriptText('Categories', 'ವಿಭಾಗಗಳು', 'Categories'), style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: c.heading)),
           const SizedBox(height: 12),
-          _buildCategoryCard(context, scriptText('स्तुति विभाग', 'ಸ್ತುತಿ ವಿಭಾಗ'), scriptText('भक्तिपूर्ण स्तोत्राणि', 'ಭಕ್ತಿಪೂರ್ಣ ಸ್ತೋತ್ರಗಳು'), Icons.auto_stories_rounded, true),
-          _buildCategoryCard(context, scriptText('कीर्तन विभाग', 'ಕೀರ್ತನ ವಿಭಾಗ'), scriptText('सुमधुर कीर्तनानि', 'ಸುಮಧುರ ಕೀರ್ತನೆಗಳು'), Icons.graphic_eq_rounded, false),
-          _buildCategoryCard(context, scriptText('सुळादि विभाग', 'ಸುಳಾದಿ ವಿಭಾಗ'), scriptText('पारम्परिक सुळादयः', 'ಪಾರಂಪರಿಕ ಸುಳಾದಿಗಳು'), Icons.library_music_rounded, false, isSuladi: true),
+          _buildCategoryCard(context, scriptText('स्तुति विभाग', 'ಸ್ತುತಿ ವಿಭಾಗ', 'Stuti Vibhaga'), scriptText('भक्तिपूर्ण स्तोत्राणि', 'ಭಕ್ತಿಪೂರ್ಣ ಸ್ತೋತ್ರಗಳು', 'Devotional Stotras'), Icons.auto_stories_rounded, true),
+          _buildCategoryCard(context, scriptText('कीर्तन विभाग', 'ಕೀರ್ತನ ವಿಭಾಗ', 'Kirtan Vibhaga'), scriptText('सुमधुर कीर्तनानि', 'ಸುಮಧುರ ಕೀರ್ತನೆಗಳು', 'Melodious Kirtans'), Icons.graphic_eq_rounded, false),
+          _buildCategoryCard(context, scriptText('सुळादि विभाग', 'ಸುಳಾದಿ ವಿಭಾಗ', 'Suladi Vibhaga'), scriptText('पारम्परिक सुळादयः', 'ಪಾರಂಪರಿಕ ಸುಳಾದಿಗಳು', 'Traditional Suladis'), Icons.library_music_rounded, false, isSuladi: true),
         ],
       ),
-    );
+    ));
   }
 
   Widget _buildRecentCard(BuildContext context, String image, String stotraId, String title) {
@@ -206,40 +206,42 @@ class StotraSubcategoriesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    final composers = [
-      scriptText('वेदव्यासदेवकृतस्तोत्राणि', 'ವೇದವ್ಯಾಸದೇವಕೃತಸ್ತೋತ್ರಾಣಿ'),
-      scriptText('श्रीमध्वाचार्यकृतस्तोत्राणि', 'ಶ್ರೀಮಧ್ವಾಚಾರ್ಯಕೃತಸ್ತೋತ್ರಾಣಿ'),
-      scriptText('श्रीवादिराजतीर्थकृतस्तोत्राणि', 'ಶ್ರೀವಾದಿರಾಜತೀರ್ಥಕೃತಸ್ತೋತ್ರಾಣಿ'),
-      scriptText('श्रीविजयीन्द्रतीर्थकृतस्तोत्राणि', 'ಶ್ರೀವಿಜಯೀನ್ದ್ರತೀರ್ಥಕೃತಸ್ತೋತ್ರಾಣಿ'),
-      scriptText('श्रीव्यासराजतीर्थकृतस्तोत्राणि', 'ಶ್ರೀವ್ಯಾಸರಾಜತೀರ್ಥಕೃತಸ್ತೋತ್ರಾಣಿ'),
-      scriptText('श्रीराघवेन्द्रतीर्थकृतस्तोत्राणि', 'ಶ್ರೀರಾಘವೇನ್ದ್ರತೀರ್ಥಕೃತಸ್ತೋತ್ರಾಣಿ'),
-      scriptText('अन्यकृतस्तोत्राणि', 'ಅನ್ಯಕೃತಸ್ತೋತ್ರಾಣಿ'),
-    ];
+    return ScriptListener(builder: (context) {
+      final composers = [
+        scriptText('वेदव्यासदेवकृतस्तोत्राणि', 'ವೇದವ್ಯಾಸದೇವಕೃತಸ್ತೋತ್ರಾಣಿ', 'Stotras by Sri Vedavyasa Deva'),
+        scriptText('श्रीमध्वाचार्यकृतस्तोत्राणि', 'ಶ್ರೀಮಧ್ವಾಚಾರ್ಯಕೃತಸ್ತೋತ್ರಾಣಿ', 'Stotras by Sri Madhvacharya'),
+        scriptText('श्रीवादिराजतीर्थकृतस्तोत्राणि', 'ಶ್ರೀವಾದಿರಾಜತೀರ್ಥಕೃತಸ್ತೋತ್ರಾಣಿ', 'Stotras by Sri Vadiraja Tirtha'),
+        scriptText('श्रीविजयीन्द्रतीर्थकृतस्तोत्राणि', 'ಶ್ರೀವಿಜಯೀನ್ದ್ರತೀರ್ಥಕೃತಸ್ತೋತ್ರಾಣಿ', 'Stotras by Sri Vijayeendra Tirtha'),
+        scriptText('श्रीव्यासराजतीर्थकृतस्तोत्राणि', 'ಶ್ರೀವ್ಯಾಸರಾಜತೀರ್ಥಕೃತಸ್ತೋತ್ರಾಣಿ', 'Stotras by Sri Vyasaraja Tirtha'),
+        scriptText('श्रीराघवेन्द्रतीर्थकृतस्तोत्राणि', 'ಶ್ರೀರಾಘವೇನ್ದ್ರತೀರ್ಥಕೃತಸ್ತೋತ್ರಾಣಿ', 'Stotras by Sri Raghavendra Tirtha'),
+        scriptText('अन्यकृतस्तोत्राणि', 'ಅನ್ಯಕೃತಸ್ತೋತ್ರಾಣಿ', 'Stotras by Other Composers'),
+      ];
 
-    return Scaffold(
-      appBar: AppBar(toolbarHeight: 72, title: Text(scriptText('स्तुति विभाग', 'ಸ್ತುತಿ ವಿಭಾಗ'))),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: composers.length,
-        itemBuilder: (context, index) {
-          bool hasContent = index == 2; // Only item 3 has content
-          return Card(
-            elevation: 1,
-            margin: const EdgeInsets.only(bottom: 12),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-            child: ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              leading: Icon(Icons.menu_book_rounded, color: c.brandText, size: 28),
-              title: NumberedTitle(number: index + 1, text: composers[index], style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: c.brandText, height: 1.3)),
-              trailing: hasContent ? const Icon(Icons.chevron_right) : const Text('Coming soon', style: TextStyle(color: Colors.grey)),
-              onTap: hasContent ? () {
-                Navigator.push(context, smoothRoute(StotraListScreen(composer: 'Sri Vadiraja Tirtha', title: scriptText('श्रीवादिराजतीर्थकृतस्तोत्राणि', 'ಶ್ರೀವಾದಿರಾಜತೀರ್ಥಕೃತಸ್ತೋತ್ರಾಣಿ'))));
-              } : null,
-            ),
-          );
-        },
-      ),
-    );
+      return Scaffold(
+        appBar: AppBar(toolbarHeight: 72, title: Text(scriptText('स्तुति विभाग', 'ಸ್ತುತಿ ವಿಭಾಗ', 'Stuti Vibhaga'))),
+        body: ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: composers.length,
+          itemBuilder: (context, index) {
+            bool hasContent = index == 2; // Only item 3 has content
+            return Card(
+              elevation: 1,
+              margin: const EdgeInsets.only(bottom: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              child: ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                leading: Icon(Icons.menu_book_rounded, color: c.brandText, size: 28),
+                title: NumberedTitle(number: index + 1, text: composers[index], style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: c.brandText, height: 1.3)),
+                trailing: hasContent ? const Icon(Icons.chevron_right) : const Text('Coming soon', style: TextStyle(color: Colors.grey)),
+                onTap: hasContent ? () {
+                  Navigator.push(context, smoothRoute(const StotraListScreen(composer: 'Sri Vadiraja Tirtha', titleMap: {'sa': 'श्रीवादिराजतीर्थकृतस्तोत्राणि', 'kn': 'ಶ್ರೀವಾದಿರಾಜತೀರ್ಥಕೃತಸ್ತೋತ್ರಾಣಿ', 'en': 'Stotras by Sri Vadiraja Tirtha'})));
+                } : null,
+              ),
+            );
+          },
+        ),
+      );
+    });
   }
 }
 
@@ -277,8 +279,8 @@ class _SuladiListScreenState extends State<SuladiListScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    return Scaffold(
-      appBar: AppBar(toolbarHeight: 72, title: Text(scriptText('सुळादि विभाग', 'ಸುಳಾದಿ ವಿಭಾಗ'))),
+    return ScriptListener(builder: (context) => Scaffold(
+      appBar: AppBar(toolbarHeight: 72, title: Text(scriptText('सुळादि विभाग', 'ಸುಳಾದಿ ವಿಭಾಗ', 'Suladi Vibhaga'))),
       body: error != null
         ? Center(child: Text('Error: $error', style: const TextStyle(color: Colors.red)))
         : suladis.isEmpty
@@ -297,7 +299,7 @@ class _SuladiListScreenState extends State<SuladiListScreen> {
                   child: ListTile(
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     leading: bookIcon,
-                    title: NumberedTitle(number: index + 1, text: scriptText('यन्त्रोद्धारक हनुमत्सुळादि', 'ಯಂತ್ರೋದ್ಧಾರಕ ಹನುಮತ್ಸುಳಾದಿ'), style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: c.brandText, height: 1.3)),
+                    title: NumberedTitle(number: index + 1, text: scriptText('यन्त्रोद्धारक हनुमत्सुळादि', 'ಯಂತ್ರೋದ್ಧಾರಕ ಹನುಮತ್ಸುಳಾದಿ', 'Yantroddharaka Hanuman Suladi'), style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: c.brandText, height: 1.3)),
                     trailing: const Text('Coming soon', style: TextStyle(color: Colors.grey)),
                   ),
                 );
@@ -313,11 +315,14 @@ class _SuladiListScreenState extends State<SuladiListScreen> {
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   leading: bookIcon,
                   title: NumberedTitle(number: index + 1, text: resolveScriptText(suladi.title), style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: c.brandText, height: 1.3)),
-                  trailing: const Text('Coming soon', style: TextStyle(color: Colors.grey)),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    Navigator.push(context, smoothRoute(ReaderScreen(stotra: suladi)));
+                  },
                 ),
               );
             },
           ),
-    );
+    ));
   }
 }

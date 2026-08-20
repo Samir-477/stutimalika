@@ -42,8 +42,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    return Scaffold(
-      appBar: AppBar(toolbarHeight: 72, title: Text(scriptText('मम प्रियाणि', 'ನನ್ನ ಮೆಚ್ಚಿನವುಗಳು'))),
+    return ScriptListener(builder: (context) => Scaffold(
+      appBar: AppBar(toolbarHeight: 72, title: Text(scriptText('मम प्रियाणि', 'ನನ್ನ ಮೆಚ್ಚಿನವುಗಳು', 'My Favorites'))),
       body: _loading
         ? const Center(child: CircularProgressIndicator())
         : _error != null
@@ -57,7 +57,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                     child: Padding(
                       padding: const EdgeInsets.all(24),
                       child: Text(
-                        scriptText('अद्यापि कोऽपि स्तोत्रः प्रियेषु न योजितः। पठनसमये हृदयचिह्नं स्पृशतु।', 'ಇನ್ನೂ ಯಾವುದೇ ಮೆಚ್ಚಿನವುಗಳಿಲ್ಲ. ಓದುವಾಗ ಹೃದಯ ಐಕಾನ್ ಒತ್ತಿ.'),
+                        scriptText('अद्यापि कोऽपि स्तोत्रः प्रियेषु न योजितः। पठनसमये हृदयचिह्नं स्पृशतु।', 'ಇನ್ನೂ ಯಾವುದೇ ಮೆಚ್ಚಿನವುಗಳಿಲ್ಲ. ಓದುವಾಗ ಹೃದಯ ಐಕಾನ್ ಒತ್ತಿ.', 'No favorites yet. Tap the heart icon while reading to add one.'),
                         textAlign: TextAlign.center,
                         style: TextStyle(color: c.mutedText, fontSize: 15),
                       ),
@@ -75,6 +75,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                     if (stotra.id == 'sri-narasimha-devara-suladi') img = 'assets/images/narsimha suladi.jpeg';
                     if (stotra.id == 'durga-suladhi') img = 'assets/images/durga suladi.jpeg';
                     if (stotra.id == 'sri-mukhya-prana-suladi') img = 'assets/images/mukhyaprana suladi.jpeg';
+                    // No dedicated artwork exists for these two — reuse existing images.
+                    if (stotra.id == 'sri-kapila-devara-suladi') img = 'assets/images/rameshastuti.jpeg';
+                    if (stotra.id == 'dhanvanthri-suladhi') img = 'assets/images/hayagreevastotram.jpeg';
                     final hasAudio = stotra.id == 'ramesha-stuti' || stotra.id == 'hayagriva-stotram';
 
                     return Card(
@@ -101,6 +104,6 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                 );
               },
             ),
-    );
+    ));
   }
 }

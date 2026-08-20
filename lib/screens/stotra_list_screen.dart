@@ -9,8 +9,11 @@ import 'reader_screen.dart';
 
 class StotraListScreen extends StatefulWidget {
   final String composer;
-  final String? title;
-  const StotraListScreen({super.key, required this.composer, this.title});
+  // Raw sa/kn/en text, resolved live at build time instead of once at
+  // navigation time — so the AppBar title stays in sync if the script
+  // changes while this screen (or one pushed on top of it) is visible.
+  final Map<String, String>? titleMap;
+  const StotraListScreen({super.key, required this.composer, this.titleMap});
   @override
   State<StotraListScreen> createState() => _StotraListScreenState();
 }
@@ -43,10 +46,12 @@ class _StotraListScreenState extends State<StotraListScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    return Scaffold(
+    return ScriptListener(builder: (context) {
+      final appBarTitle = widget.titleMap != null ? resolveScriptText(widget.titleMap!) : widget.composer;
+      return Scaffold(
       appBar: AppBar(
         toolbarHeight: 72,
-        title: Text(widget.title ?? widget.composer, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 18)),
+        title: Text(appBarTitle, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 18)),
       ),
       body: error != null
         ? Center(child: Text('Error: $error', style: const TextStyle(color: Colors.red)))
@@ -78,6 +83,7 @@ class _StotraListScreenState extends State<StotraListScreen> {
               );
             },
           ),
-    );
+      );
+    });
   }
 }

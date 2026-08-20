@@ -1,5 +1,8 @@
+import 'dart:io' show Platform;
 import 'package:audio_service/audio_service.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'screens/splash_screen.dart';
 import 'models/models.dart';
 import 'services/audio_handler.dart';
@@ -13,6 +16,12 @@ late final StutiAudioHandler audioHandler;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await AppState.loadPrefs();
+  // Android 13+ hides the playback notification unless this is granted at
+  // runtime — declaring POST_NOTIFICATIONS in the manifest alone isn't
+  // enough, which is why the Spotify-style "now playing" bar wasn't showing.
+  if (!kIsWeb && Platform.isAndroid) {
+    await Permission.notification.request();
+  }
   audioHandler = await AudioService.init(
     builder: () => StutiAudioHandler(),
     config: const AudioServiceConfig(
